@@ -1,0 +1,2 @@
+python -m venv PATH
+pip install NAME_OF_THE_LIBRARY
