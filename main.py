@@ -12,21 +12,24 @@ async def ping(ip):
 
 async def ping_ips(ips):
     tasks = [ping(ip) for ip in ips]
-    results = await asyncio.gather(*tasks)
-    return [ip for ip in results if ip is not None]
+    done, _ = await asyncio.wait(tasks)
+    return [task.result() for task in done if task.result() is not None]
 
 async def main():
     base_ip = "192.168.1."
     num_ips = 258
     ips_to_ping = [base_ip + str(i) for i in range(1, num_ips + 1)]
 
+    # Разделяем IP-адреса на группы по 10
     group_size = 10
     grouped_ips = [ips_to_ping[i:i+group_size] for i in range(0, len(ips_to_ping), group_size)]
 
+    # Пингуем IP-адреса группами
     active_ips = []
     for group in grouped_ips:
         active_ips.extend(await ping_ips(group))
 
+    # Записываем активные IP-адреса в файл
     with open('active_ip.txt', 'w') as file:
         file.write('\n'.join(active_ips))
 
